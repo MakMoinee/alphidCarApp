@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".MainActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="15dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/btnConnect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Connect to Robot Car" />
+
+            <Button
+                android:id="@+id/btnForward"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Move Forward" />
+
+            <Button
+                android:id="@+id/btnBackward"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Move Backward" />
+
+            <Button
+                android:id="@+id/btnLeft"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Move Left" />
+
+            <Button
+                android:id="@+id/btnRight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Move Right" />
+
+            <Button
+                android:id="@+id/btnStop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Stop" />
+
+            <Button
+                android:id="@+id/btnPump"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="On/Off Pump" />
+
+            <Button
+                android:id="@+id/btnTurnCam"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="Turn Left/Right Cam" />
+        </LinearLayout>
+    </RelativeLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
