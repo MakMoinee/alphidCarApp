@@ -118,13 +118,21 @@ public class AlphidCarFullSizeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (toggleCam) {
                     toggleCam = false;
-                    Toast.makeText(AlphidCarFullSizeActivity.this, "Car is set to automatic", Toast.LENGTH_SHORT).show();
-                    //TODO: the car will go forward 1 step then turn the cam twice (left, right) then trigger the pump if turnOnPump is true.
-
+                    Toast.makeText(AlphidCarFullSizeActivity.this, "Car is set to manual", Toast.LENGTH_SHORT).show();
+                    binding.btnTurnCam.setEnabled(true);
+                    binding.btnPump.setEnabled(true);
+                    turnOnPump =false;
+                    sendCommand("%S#");
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                    }
                 } else {
                     binding.btnTurnCam.setEnabled(false);
                     binding.btnPump.setEnabled(false);
                     toggleCam = true;
+
+                    Toast.makeText(AlphidCarFullSizeActivity.this, "Car is set to automatic", Toast.LENGTH_SHORT).show();
                 }
             }
         });
