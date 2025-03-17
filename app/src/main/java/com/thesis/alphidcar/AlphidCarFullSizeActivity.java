@@ -17,7 +17,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.github.MakMoinee.library.interfaces.DefaultBaseListener;
+import com.github.MakMoinee.library.services.LocalAndroidServer;
 import com.thesis.alphidcar.databinding.ActivityFullSizeBinding;
+import com.thesis.alphidcar.services.LocalServer;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -33,6 +36,10 @@ public class AlphidCarFullSizeActivity extends AppCompatActivity {
     ProgressDialog progressDialog;
     private static final UUID UUID_SERIAL_PORT = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private static final String DEVICE_NAME = "HC-06";  // Replace with your module's Bluetooth name
+    private boolean toggleTurnCam = false;
+    private boolean toggleCam = false;
+    private boolean turnOnPump = false;
+    private LocalServer server;
 
 
     @Override
@@ -46,20 +53,56 @@ public class AlphidCarFullSizeActivity extends AppCompatActivity {
             finish();
         }
         setListeners();
+        try {
+            server = new LocalServer(8080, new DefaultBaseListener() {
+                @Override
+                public <T> void onSuccess(T any) {
+                    runOnUiThread(() ->
+                            Toast.makeText(AlphidCarFullSizeActivity.this, "Alphid Detected", Toast.LENGTH_SHORT).show()
+                    );
+                    if (turnOnPump) {
+                        sendCommand("%U#");
+                        turnOnPump = false;
+
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+
+                        }
+                    }
+
+                    sendCommand("%U#");
+                    turnOnPump = false;
+
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+
+                    }
+                }
+
+                @Override
+                public void onError(Error error) {
+
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(AlphidCarFullSizeActivity.this, "Failed To Establish Server", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
     private void setListeners() {
-        binding.btnStartDetection.setOnClickListener(v -> {
+        binding.btnTurnCam.setOnClickListener(v -> {
             String videoUrl = "http://192.168.1.9:5000/video"; // Change this to your Python server's IP
 
-            WebSettings webSettings = binding.webView.getSettings();
-            webSettings.setJavaScriptEnabled(true); // Enable JavaScript for better rendering
-            webSettings.setLoadWithOverviewMode(true);
-            webSettings.setUseWideViewPort(true);
-
-            binding.webView.setWebViewClient(new WebViewClient());
-            binding.webView.loadUrl(videoUrl);
+            if (toggleTurnCam) {
+                sendCommand("%V#");
+                toggleTurnCam = false;
+            } else {
+                sendCommand("%X#");
+                toggleTurnCam = true;
+            }
         });
 
         binding.btnConnect.setOnClickListener(v -> connectToRobotCar());
@@ -69,6 +112,28 @@ public class AlphidCarFullSizeActivity extends AppCompatActivity {
         binding.btnLeft.setOnClickListener(v -> sendCommand("%E#"));
         binding.btnRight.setOnClickListener(v -> sendCommand("%F#"));
         binding.btnPump.setOnClickListener(v -> sendCommand("%U#"));
+
+        binding.btnActType.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (toggleCam) {
+                    toggleCam = false;
+                    Toast.makeText(AlphidCarFullSizeActivity.this, "Car is set to automatic", Toast.LENGTH_SHORT).show();
+                    //TODO: the car will go forward 1 step then turn the cam twice (left, right) then trigger the pump if turnOnPump is true.
+
+                } else {
+                    binding.btnTurnCam.setEnabled(false);
+                    binding.btnPump.setEnabled(false);
+                    toggleCam = true;
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        server.stop();
     }
 
     private void connectToRobotCar() {
@@ -110,7 +175,9 @@ public class AlphidCarFullSizeActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(AlphidCarFullSizeActivity.this, "Robot Car not found. Make sure it is paired.", Toast.LENGTH_SHORT).show();
                 }
-
+                sendCommand("%Z#");
+                toggleTurnCam = false;
+                toggleCam = false;
                 progressDialog.dismiss();
             }
         }, 2000);  // Delay for 2 seconds to simulate connection time
@@ -120,13 +187,57 @@ public class AlphidCarFullSizeActivity extends AppCompatActivity {
         if (outputStream != null) {
             try {
                 outputStream.write(command.getBytes());
-                Toast.makeText(this, "Command sent: " + command, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Command sent: " + command, Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Failed to send command", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Failed to send command", Toast.LENGTH_SHORT).show();
             }
         } else {
             Toast.makeText(this, "Not connected to robot car", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void autoCar() {
+        new Thread(() -> {
+            while (!toggleCam) {
+                // Move forward 1 step
+                sendCommand("%A#");
+                try {
+                    Thread.sleep(500); // Adjust delay as needed
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // Turn camera left
+
+                sendCommand("%V#");
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // Turn camera right
+                sendCommand("%X#");
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+                sendCommand("%Z#");
+
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        }).start();
+
     }
 }

@@ -40,7 +40,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
     testImplementation 'org.projectlombok:lombok:1.18.36'
     androidTestImplementation 'org.projectlombok:lombok:1.18.36'
-    implementation 'com.github.MakMoinee:library:1.0.2-rc7'
+    implementation 'com.github.MakMoinee:library:1.0.2-rc9'
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
     implementation "androidx.sqlite:sqlite:2.4.0"
     implementation "androidx.sqlite:sqlite-framework:2.4.0"
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
