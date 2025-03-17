@@ -133,6 +133,7 @@ public class AlphidCarFullSizeActivity extends AppCompatActivity {
                     toggleCam = true;
 
                     Toast.makeText(AlphidCarFullSizeActivity.this, "Car is set to automatic", Toast.LENGTH_SHORT).show();
+                    autoCar();
                 }
             }
         });
